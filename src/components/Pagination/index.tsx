@@ -35,6 +35,7 @@ export default function Pagination({
     ? generatePagesArray(currentPage, Math.min(currentPage + siblingsCount, lastPage)) 
     : [];
 
+  const totalPageResults = currentPage * registersPerPage;
 
   return (
     <Stack
@@ -45,7 +46,7 @@ export default function Pagination({
       align="center"      
     >
       <Box>
-        <strong>{(currentPage - 1) * registersPerPage}</strong> - <strong>{currentPage * registersPerPage}</strong> de <strong>{totalCountOfRegisters}</strong>
+        <strong>{(currentPage - 1) * registersPerPage}</strong> - <strong>{totalPageResults > totalCountOfRegisters ? totalCountOfRegisters : totalPageResults}</strong> de <strong>{totalCountOfRegisters}</strong>
       </Box>
       <Stack direction="row" spacing="2">
 
