@@ -1,40 +1,16 @@
 import { Box, Button, Flex, Heading, Icon, Table, Td, Th, Thead, Tr, Checkbox, Tbody, Text, useBreakpointValue, Spinner } from "@chakra-ui/react";
 import Link from "next/link";
+import { useState } from "react";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
-import { useQuery } from 'react-query';
-
 
 import Header from "../../components/Header";
 import Pagination from "../../components/Pagination";
 import Sidebar from "../../components/Sidebar";
+import { useUsers } from "../../services/hooks/useUsers";
 
 export default function UserList() {
-
-  const {data, isLoading, error} = useQuery('users', async () => {
-    const response = await fetch('http://localhost:3000/api/users')
-    const data = await response.json();
-
-    const users = data.users.map(user => {
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: new Date(user.createdAt).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        })
-      }
-    })
-
-
-    return users;
-  }, {
-    staleTime: 1000 * 5
-  })
-
- 
-
+  const [page, setPage] = useState(1);
+  const {data, isLoading, isFetching, error} = useUsers(page);
 
   const isWideVersion = useBreakpointValue({
     base: false,
@@ -49,7 +25,10 @@ export default function UserList() {
         <Sidebar />
         <Box flex="1" borderRadius={8} bg="gray.800" p="8">
           <Flex mb="8" justify="space-between" align="center">
-            <Heading size="lg" fontWeight="normal">Usuários</Heading>
+            <Heading size="lg" fontWeight="normal">
+              Usuários
+              {!isLoading && isFetching && <Spinner size="sm" color="gray.500" ml="4"/>} 
+            </Heading>
             <Link href="/users/create" passHref>
               <Button
                 as="a"
@@ -85,7 +64,7 @@ export default function UserList() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {data.map(user => (
+                  {data.users.map(user => (
                     <Tr key={user.id}>
                     <Td px={["4","4","6"]}>
                       <Checkbox colorScheme="pink"/>
@@ -114,7 +93,11 @@ export default function UserList() {
                   ))}
                 </Tbody>
               </Table>
-              <Pagination />
+              <Pagination
+                totalCountOfRegisters={data.totalCount}
+                currentPage={page}
+                onPageChange={setPage}
+              />
             </>
           )}
         </Box>        
